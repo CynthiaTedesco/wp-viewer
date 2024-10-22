@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center gap-2 justify-center">
-    <label for="thisActor-dropdown">Select Sender:</label>
+    <label for="thisActor-dropdown">Select this side:</label>
     <div class="flex gap-2 justify-center my-2">
       <div
         v-for="actor in messagesStore.actors"

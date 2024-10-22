@@ -1,22 +1,22 @@
 <template>
   <div
-    class="relative flex px-4 py-2 rounded-md text-black mb-2 text-left w-fit bg-gray-100"
+    class="relative flex px-4 py-2 rounded-md text-black my-3 text-left w-fit bg-gray-100 max-w-[60%]"
     :class="{
       'bg-gray-100 text-xs mx-auto': informative,
-      'bg-lime-100 text-sm': !informative,
-      // 'text-sm': sender
+      'text-sm text-white': !informative,
+      'ml-auto bg-mine-dark': isMyMessage,
+      'mr-auto bg-theirs-dark': !isMyMessage && !informative,
     }"
   >
     {{ messageParts.message }}
 
-    <!-- Caret on the bottom left -->
     <div
-      class="absolute bottom-0 left-0 w-2 h-2 border-l-8 border-t-8 border-transparent border-t-blue-500"
-    ></div>
-
-    <!-- Caret on the bottom right -->
-    <div
+      v-if="isMyMessage"
       class="absolute bottom-0 right-0 w-2 h-2 border-r-8 border-t-8 border-transparent border-t-blue-500"
+    ></div>
+    <div
+      v-else
+      class="absolute bottom-0 left-0 w-2 h-2 border-l-8 border-t-8 border-transparent border-t-blue-500"
     ></div>
   </div>
 </template>
@@ -24,10 +24,13 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { messages } from '../utils/constants';
+import { useMessagesStore } from '../store/messages';
 
 const props = defineProps<{
   content: string;
 }>();
+
+const messagesStore = useMessagesStore();
 
 const messageParts = computed(() => {
   // Apply the regular expression to the message
@@ -63,4 +66,8 @@ const messageParts = computed(() => {
 
 // const informativeFormat =
 const informative = computed(() => messages.INFORMATIVE.test(props.content));
+
+const isMyMessage = computed(
+  () => messageParts.value.name === messagesStore.thisActor
+);
 </script>

@@ -35,7 +35,7 @@ const setActors = () => {
     }
   });
 
-  messagesStore.actors = Array.from(actors);
+  messagesStore.setActors(Array.from(actors));
 };
 
 const fetchFileContent = async () => {
@@ -74,15 +74,16 @@ watchEffect(() => {
 </script>
 
 <template>
-  {{ messagesStore.actors }}
-  <thisActorSelector />
+  <template v-if="messages">
+    <thisActorSelector />
 
-  <template v-if="page1">
-    <Message
-      v-for="(message, i) in page1"
-      :key="`${message.split(',')[0]}-${i}`"
-      :content="message"
-    >
-    </Message>
+    <template v-if="page1">
+      <Message
+        v-for="(message, i) in page1"
+        :key="`${message.split(',')[0]}-${i}`"
+        :content="message"
+      >
+      </Message>
+    </template>
   </template>
 </template>

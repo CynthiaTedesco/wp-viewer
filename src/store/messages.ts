@@ -8,6 +8,8 @@ export const useMessagesStore = defineStore('messages', () => {
 
   const setActors = (theActors: string[]) => {
     actors.value = theActors;
+    thisActor.value = theActors[0];
+    thatActor.value = theActors.slice(1, theActors.length)[0];
   };
 
   const setThisActor = (actor: string) => {
