@@ -1,3 +1,5 @@
+import { messages } from "./constants";
+
 export function parseToCSV(inputText) {
   // Split the input by newlines
   const lines = inputText.split("\n");
@@ -15,11 +17,10 @@ export function parseToCSV(inputText) {
     }
   };
 
-  // Regex to match lines with date, time, and optional actor
   const lineRegex = /^(\d{2}\/\d{2}\/\d{4}), (\d{2}:\d{2}) - (?:(.+?): )?(.*)$/;
 
   lines.forEach((line) => {
-    const match = line.match(lineRegex);
+    const match = line.match(messages.ALL);
 
     if (match) {
       // If we find a valid line, first add any accumulated message

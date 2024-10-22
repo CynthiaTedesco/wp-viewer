@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, ref, watchEffect } from "vue";
-import Message from "./Message.vue";
-import ReceiverSelector from "./ReceiverSelector.vue";
+import { computed, onBeforeMount, ref, watchEffect } from 'vue';
+import Message from './Message.vue';
+import SenderSelector from './SenderSelector.vue';
+import { parseToCSV } from '../utils/parser.js';
 
 import {
   DATE_TIME_PATTERN,
   DATE_TIME_SEPARATOR,
   NEW_LINE_SEPARATOR,
-} from "../utils/constants.ts";
+} from '../utils/constants.ts';
+import { useMessagesStore } from '../store/messages.ts';
 
 const fileContent = ref<string | null>(null);
 const messages = ref<string[]>([]);
@@ -18,10 +20,10 @@ const actors = computed(() => {
   messages.value.find((msg) => {
     const parts = msg
       .replace(DATE_TIME_PATTERN, DATE_TIME_SEPARATOR)
-      .split(":");
+      .split(':');
 
     if (parts.length > 1) {
-      const senderParts = parts[0].split("-");
+      const senderParts = parts[0].split('-');
       const actor = senderParts[senderParts.length - 1].trim();
       actors.add(actor);
     }
@@ -32,13 +34,13 @@ const actors = computed(() => {
 
 const fetchFileContent = async () => {
   try {
-    const response = await fetch("/data/WhatsApp Chat with Cynthia ❤.txt");
+    const response = await fetch('/data/WhatsApp Chat with Cynthia ❤.txt');
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
     fileContent.value = await response.text();
 
-    fileContent.value.split("\n").forEach((content) => {
+    fileContent.value.split('\n').forEach((content) => {
       const line = content.trim();
 
       if (DATE_TIME_PATTERN.test(line)) {
@@ -50,21 +52,28 @@ const fetchFileContent = async () => {
       }
     });
   } catch (error) {
-    console.error("Error fetching file:", error);
+    console.error('Error fetching file:', error);
   }
 };
 
-const selectReceiver = (actor: string) => {
-  console.log("[MAIN] selecting receiver to", actor);
-  receiver.value = actor;
+const messagesStore = useMessagesStore();
+
+const selectSender = (sender: string) => {
+  console.log('[MAIN] selecting sender to', sender);
+  messagesStore.setActors();
 };
 
 onBeforeMount(() => fetchFileContent());
+watchEffect(() => {
+  if (fileContent.value) {
+    console.log(parseToCSV(fileContent.value));
+  }
+});
 </script>
 
 <template>
   {{ actors }}
-  <ReceiverSelector :actors="actors" @select="selectReceiver" />
+  <SenderSelector :actors="actors" @select="selectSender" />
 
   <Message
     v-for="(message, i) in messages.slice(0, 100)"
