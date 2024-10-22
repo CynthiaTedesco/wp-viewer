@@ -1,22 +1,28 @@
 <script setup lang="ts">
 import { computed, onBeforeMount, ref, watchEffect } from 'vue';
 import Message from './Message.vue';
-import SenderSelector from './SenderSelector.vue';
+import thisActorSelector from './thisActorSelector.vue';
 import { parseToCSV } from '../utils/parser.js';
+import { useMessagesStore } from '../store/messages.ts';
 
 import {
   DATE_TIME_PATTERN,
   DATE_TIME_SEPARATOR,
   NEW_LINE_SEPARATOR,
 } from '../utils/constants.ts';
-import { useMessagesStore } from '../store/messages.ts';
 
-const fileContent = ref<string | null>(null);
+const messagesStore = useMessagesStore();
 const messages = ref<string[]>([]);
 
-const actors = computed(() => {
-  const actors: Set<string> = new Set();
+// TODO paginate properly
+const page1 = computed(() => {
+  return messages.value.slice(0, 100);
+});
 
+const fileContent = ref<string | null>(null);
+
+const setActors = () => {
+  const actors: Set<string> = new Set();
   messages.value.find((msg) => {
     const parts = msg
       .replace(DATE_TIME_PATTERN, DATE_TIME_SEPARATOR)
@@ -29,8 +35,8 @@ const actors = computed(() => {
     }
   });
 
-  return Array.from(actors);
-});
+  messagesStore.actors = Array.from(actors);
+};
 
 const fetchFileContent = async () => {
   try {
@@ -56,59 +62,27 @@ const fetchFileContent = async () => {
   }
 };
 
-const messagesStore = useMessagesStore();
-
-const selectSender = (sender: string) => {
-  console.log('[MAIN] selecting sender to', sender);
-  messagesStore.setActors();
-};
-
-onBeforeMount(() => fetchFileContent());
+onBeforeMount(() => {
+  fetchFileContent();
+});
 watchEffect(() => {
   if (fileContent.value) {
     console.log(parseToCSV(fileContent.value));
+    setActors();
   }
 });
 </script>
 
 <template>
-  {{ actors }}
-  <SenderSelector :actors="actors" @select="selectSender" />
+  {{ messagesStore.actors }}
+  <thisActorSelector />
 
-  <Message
-    v-for="(message, i) in messages.slice(0, 100)"
-    :key="`${message.split(',')[0]}-${i}`"
-    :content="message"
-  >
-  </Message>
-  <!-- <MessageReceived />
-  <MessageSent /> -->
-
-  <div class="card">
-    <p>
-      Edit
-      <code>components/HelloWorld.vue</code> to test HMR
-    </p>
-  </div>
-
-  <p>
-    Check out
-    <a href="https://vuejs.org/guide/quick-start.html#local" target="_blank"
-      >create-vue</a
-    >, the official Vue + Vite starter
-  </p>
-  <p>
-    Learn more about IDE Support for Vue in the
-    <a
-      href="https://vuejs.org/guide/scaling-up/tooling.html#ide-support"
-      target="_blank"
-      >Vue Docs Scaling up Guide</a
-    >.
-  </p>
+  <template v-if="page1">
+    <Message
+      v-for="(message, i) in page1"
+      :key="`${message.split(',')[0]}-${i}`"
+      :content="message"
+    >
+    </Message>
+  </template>
 </template>
-
-<style scoped>
-.read-the-docs {
-  color: #888;
-}
-</style>

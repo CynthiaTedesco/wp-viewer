@@ -2,13 +2,18 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
 export const useMessagesStore = defineStore('messages', () => {
-  const receiver = ref<string>();
-  const sender = ref<string>();
+  const thatActor = ref<string>('');
+  const thisActor = ref<string>('');
+  const actors = ref<string[]>([]);
 
-  const setActors = (theSender: string, theReceiver: string | undefined) => {
-    sender.value = theSender;
-    receiver.value = theReceiver;
+  const setActors = (theActors: string[]) => {
+    actors.value = theActors;
   };
 
-  return { setActors, sender };
+  const setThisActor = (actor: string) => {
+    thisActor.value = actor;
+    thatActor.value = actors.value?.find((name) => name != actor) || '';
+  };
+
+  return { setActors, setThisActor, thisActor, actors };
 });
