@@ -82,6 +82,7 @@ watchEffect(() => {
         v-for="(message, i) in page1"
         :key="`${message.split(',')[0]}-${i}`"
         :content="message"
+        :next-content="page1[i + 1] || ''"
       >
       </Message>
     </template>

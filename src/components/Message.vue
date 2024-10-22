@@ -1,21 +1,32 @@
 <template>
   <div
-    class="relative flex px-4 py-2 rounded-md text-black my-3 text-left w-fit bg-gray-100 max-w-[60%]"
+    class="relative flex px-4 py-2 rounded-lg text-black mb-3 text-left w-fit"
     :class="{
       'bg-gray-100 text-xs mx-auto': informative,
-      'text-sm text-white': !informative,
+      'text-sm text-white bg-gray-100 max-w-[60%]': !informative,
       'ml-auto bg-mine-dark': isMyMessage,
       'mr-auto bg-theirs-dark': !isMyMessage && !informative,
+      '!mb-2': isMyMessage && nextMessageIsMine,
     }"
   >
     {{ messageParts.message }}
 
+    <svg
+      v-if="isMyMessage && !nextMessageIsMine"
+      class="absolute -bottom-[25px] -right-[25px]"
+      width="60"
+      height="60"
+      viewBox="0 0 40 40"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M10 20 Q5 25, 20 30 Q15 25, 20 20 Q15 15, 10 20 Z"
+        fill="#005046"
+      />
+    </svg>
+
     <div
-      v-if="isMyMessage"
-      class="absolute bottom-0 right-0 w-2 h-2 border-r-8 border-t-8 border-transparent border-t-blue-500"
-    ></div>
-    <div
-      v-else
+      v-else-if="!isMyMessage"
       class="absolute bottom-0 left-0 w-2 h-2 border-l-8 border-t-8 border-transparent border-t-blue-500"
     ></div>
   </div>
@@ -28,9 +39,20 @@ import { useMessagesStore } from '../store/messages';
 
 const props = defineProps<{
   content: string;
+  nextContent: string;
 }>();
 
 const messagesStore = useMessagesStore();
+
+const nextMessageIsMine = computed(
+  () => nextMessageName.value === messagesStore.thisActor
+);
+const nextMessageName = computed(() => {
+  const non_informative = props.nextContent.match(messages.NON_INFORMATIVE);
+  if (non_informative) {
+    return non_informative[3];
+  }
+});
 
 const messageParts = computed(() => {
   // Apply the regular expression to the message
