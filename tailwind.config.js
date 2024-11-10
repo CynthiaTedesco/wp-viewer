@@ -6,11 +6,11 @@ export default {
       colors: {
         mine: {
           dark: '#005046',
-          light: '',
+          light: '#e2ffd4',
         },
         theirs: {
           dark: '#363638',
-          light: '',
+          light: '#ffffff',
         },
       },
     },

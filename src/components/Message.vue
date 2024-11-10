@@ -11,30 +11,18 @@
   >
     {{ messageParts.message }}
 
-    <svg
-      v-if="isMyMessage && !nextMessageIsMine"
-      class="absolute -bottom-[25px] -right-[25px]"
-      width="60"
-      height="60"
-      viewBox="0 0 40 40"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M10 20 Q5 25, 20 30 Q15 25, 20 20 Q15 15, 10 20 Z"
-        fill="#005046"
-      />
-    </svg>
-
-    <div
-      v-else-if="!isMyMessage"
-      class="absolute bottom-0 left-0 w-2 h-2 border-l-8 border-t-8 border-transparent border-t-blue-500"
-    ></div>
+    <Tail
+      v-if="!informative"
+      :is-mine="isMyMessage"
+      :nextMessageIsMine="nextMessageIsMine"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 import { messages } from '../utils/constants';
+import Tail from './Tail.vue';
 import { useMessagesStore } from '../store/messages';
 
 const props = defineProps<{
